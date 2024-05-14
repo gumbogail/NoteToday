@@ -37,12 +37,12 @@ class _AddEditNotePageState extends State<AddEditNotePage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          backgroundColor: Color.fromARGB(
+          backgroundColor: const Color.fromARGB(
               109, 0, 0, 0), // Setting app bar background color to white
           actions: [buildButton()], // Actions in the app bar
         ),
-        backgroundColor:
-            Color.fromARGB(109, 0, 0, 0), // Setting background color to white
+        backgroundColor: const Color.fromARGB(
+            109, 0, 0, 0), // Setting background color to white
         body: Form(
           key: _formKey, // Key for the form
           child: NoteFormWidget(

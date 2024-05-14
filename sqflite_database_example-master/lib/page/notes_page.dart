@@ -7,114 +7,98 @@ import '../page/note_detail_page.dart';
 import '../widget/note_card_widget.dart';
 
 class NotesPage extends StatefulWidget {
-  const NotesPage({Key? key})
-      : super(key: key); // Constructor for NotesPage widget
+  const NotesPage({Key? key}) : super(key: key);
 
   @override
-  State<NotesPage> createState() =>
-      _NotesPageState(); // Creating state for NotesPage
+  State<NotesPage> createState() => _NotesPageState();
 }
 
 class _NotesPageState extends State<NotesPage> {
-  late List<Note> notes; // List to hold notes
-  bool isLoading = false; // Loading state
+  late List<Note> notes;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    refreshNotes(); // Initialize and load notes when the widget is created
+    refreshNotes();
   }
 
   @override
   void dispose() {
-    NotesDatabase.instance
-        .close(); // Close the database connection when the widget is disposed
+    NotesDatabase.instance.close();
     super.dispose();
   }
 
-  // Function to refresh the list of notes asynchronously
   Future refreshNotes() async {
-    setState(() => isLoading = true); // Set loading state to true
-
-    notes = await NotesDatabase.instance
-        .readAllNotes(); // Read all notes from the database
-
-    setState(() => isLoading = false); // Set loading state to false when done
+    setState(() => isLoading = true);
+    notes = await NotesDatabase.instance.readAllNotes();
+    setState(() => isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text(
-            'Notes', // Title of the app bar
+            'Notes',
             style: TextStyle(
                 fontSize: 24, color: Color.fromARGB(255, 255, 255, 255)),
-            // Style for the title text
           ),
-          actions: const [
-            Icon(Icons.search),
-            SizedBox(width: 12)
-          ], // Actions in the app bar
+          actions: const [Icon(Icons.search), SizedBox(width: 12)],
         ),
-        backgroundColor: const Color.fromARGB(
-            255, 0, 0, 0), // Background color of the scaffold
+        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
         body: Center(
-          child: isLoading // Display loading indicator if isLoading is true
+          child: isLoading
               ? const CircularProgressIndicator()
-              : notes.isEmpty // Display 'No Notes' message if notes list is empty
+              : notes.isEmpty
                   ? const Text(
-                      'No Notes', // Text to display when there are no notes
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24), // Style for the text
+                      'No Notes',
+                      style: TextStyle(color: Colors.white, fontSize: 24),
                     )
-                  : buildNotes(), // Build notes if there are notes available
+                  : buildNotes(),
         ),
         floatingActionButton: FloatingActionButton(
-          backgroundColor:
-              Colors.white, // Background color of the floating action button
-          child: const Icon(Icons.add), // Icon for the floating action button
+          backgroundColor: Colors.white,
+          child: const Icon(Icons.add),
           onPressed: () async {
             await Navigator.of(context).push(
-              MaterialPageRoute(
-                  builder: (context) =>
-                      const AddEditNotePage()), // Navigate to AddEditNotePage when the button is pressed
+              MaterialPageRoute(builder: (context) => const AddEditNotePage()),
             );
-
-            refreshNotes(); // Refresh notes after navigating back from AddEditNotePage
+            refreshNotes();
           },
         ),
       );
 
-  // Function to build the grid of notes
-  Widget buildNotes() => StaggeredGrid.count(
-        crossAxisCount: 2, // Number of columns in the grid
-        mainAxisSpacing: 2, // Spacing between the rows
-        crossAxisSpacing: 2, // Spacing between the columns
-        children: List.generate(
-          notes.length,
-          (index) {
-            final note = notes[index]; // Get the note at the current index
-
-            return StaggeredGridTile.fit(
-              crossAxisCellCount: 1,
-              child: GestureDetector(
+  Widget buildNotes() => ListView.builder(
+        itemCount: notes.length,
+        itemBuilder: (context, index) {
+          final note = notes[index];
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              color: Color.fromARGB(255, 255, 164,
+                  229), // Example color, you can change it to any color you like
+              elevation: 2, // Add elevation for a better visual effect
+              child: ListTile(
+                title: Text(
+                  note.title,
+                  style: TextStyle(
+                      color: const Color.fromARGB(
+                          255, 0, 0, 0)), // Change text color to white
+                ),
+                subtitle: Text(
+                  note.description,
+                  style: TextStyle(
+                      color: Colors.black), // Change text color to white
+                ),
                 onTap: () async {
                   await Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => NoteDetailPage(
-                        noteId: note
-                            .id!), // Navigate to NoteDetailPage when a note is tapped
+                    builder: (context) => NoteDetailPage(noteId: note.id!),
                   ));
-
-                  refreshNotes(); // Refresh notes after navigating back from NoteDetailPage
+                  refreshNotes();
                 },
-                child: NoteCardWidget(
-                    note: note,
-                    index:
-                        index), // Display NoteCardWidget for the current note
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       );
 }
